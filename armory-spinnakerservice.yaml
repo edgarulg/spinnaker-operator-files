@@ -1,0 +1,148 @@
+apiVersion: spinnaker.armory.io/v1alpha2
+kind: SpinnakerService
+metadata:
+  name: spinnaker
+spec:
+  # spec.spinnakerConfig - This section is how to specify configuration spinnaker
+  spinnakerConfig:
+    # spec.spinnakerConfig.config - This section contains the contents of a deployment found in a halconfig .deploymentConfigurations[0]
+    config:
+      version: 2.20.2   # the version of Spinnaker to be deployed
+      persistentStorage:
+        persistentStoreType: s3
+        s3:
+          bucket: armory-edgargarcia
+          rootFolder: front50
+      providers:
+        kubernetes:
+          enabled: true
+          accounts:
+          - name: kubernetes
+            requiredGroupMembership: []
+            providerVersion: V2
+            permissions: {}
+            dockerRegistries: []
+            configureImagePullSecrets: true
+            cacheThreads: 1
+            namespaces:
+            - edgar-dev
+            - armory-spinnaker
+            omitNamespaces: []
+            kinds: []
+            omitKinds: []
+            customResources: []
+            cachingPolicies: []
+            kubeconfigFile: kubeconfig-dev
+            oAuthScopes: []
+            onlySpinnakerManaged: false
+          primaryAccount: kubernetes
+      spinnaker:
+        extensibility:
+          plugins:
+            Armory.CRDCheck:
+              enabled: true
+              version: 0.0.17
+              extensions: {}
+          repositories:
+            crd-plugin-repository:
+              url: https://raw.githubusercontent.com/armory-plugins/armory-crdcheck-plugin-releases/master/repositories.json
+
+    # spec.spinnakerConfig.profiles - This section contains the YAML of each service's profile
+    profiles:
+      clouddriver: {} # is the contents of ~/.hal/default/profiles/clouddriver.yml
+      # deck has a special key "settings-local.js" for the contents of settings-local.js
+      deck:
+        # settings-local.js - contents of ~/.hal/default/profiles/settings-local.js
+        # Use the | YAML symbol to indicate a block-style multiline string
+        settings-local.js: |
+          window.spinnakerSettings.feature.kustomizeEnabled = true;
+          window.spinnakerSettings.feature.artifactsRewrite = true;
+      echo: {}    # is the contents of ~/.hal/default/profiles/echo.yml
+      fiat: {}    # is the contents of ~/.hal/default/profiles/fiat.yml
+      front50: {} # is the contents of ~/.hal/default/profiles/front50.yml
+      gate: {}    # is the contents of ~/.hal/default/profiles/gate.yml
+      igor: {}    # is the contents of ~/.hal/default/profiles/igor.yml
+      kayenta: {} # is the contents of ~/.hal/default/profiles/kayenta.yml
+      orca: {}    # is the contents of ~/.hal/default/profiles/orca.yml
+      rosco: {}   # is the contents of ~/.hal/default/profiles/rosco.yml
+
+    # spec.spinnakerConfig.service-settings - This section contains the YAML of the service's service-setting
+    # see https://www.spinnaker.io/reference/halyard/custom/#tweakable-service-settings for available settings
+    service-settings:
+      clouddriver: {}
+      deck: {}
+      echo: {}
+      fiat: {}
+      front50: {}
+      gate: {}
+      igor: {}
+      kayenta: {}
+      orca: {}
+      rosco: {}
+
+    # spec.spinnakerConfig.files - This section allows you to include any other raw string files not handle above.
+    # The KEY is the filepath and filename of where it should be placed
+    #   - Files here will be placed into ~/.hal/default/ on halyard
+    #   - __ is used in place of / for the path separator
+    # The VALUE is the contents of the file.
+    #   - Use the | YAML symbol to indicate a block-style multiline string
+    #   - We currently only support string files
+    #   - NOTE: Kubernetes has a manifest size limitation of 1MB
+    files:
+      kubeconfig-dev: |
+        apiVersion: v1
+        clusters:
+        - cluster:
+          certificate-authority-data:  LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRFNE1EZ3hOVEl6TVRVME1sb1hEVEk0TURneE1qSXpNVFUwTWxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTGdBCjNmZ0pUWEo3TFhDYzh1cEJPMVo4Y05sNnVCT0tNdG1EVm5qZC9vT1NBUHNXeEU3R2JIc3ZBVEFzaTRyYXRYQTcKeGhnQ2svb1kwVS9yNnlMMXhLZmtGTGo4aDhXZFFiSkcxeGt4WS9jKzErQXprdThQdXlWSFlMZStzMFhndm8zRwpaY3RnQkFFS1JHVHJqM3lQVThhUXI2SnRJUHpsMnlaK1huYmk3YVI4V1dCZjhqRWZHTGxCNDRPZDMwV25mRkNmClVlYmZqZEg4ZTh3TVNrdGhpV1d2MzZneURabHNnVzBvSWl5cVdUUmJobmNDbmJiL3VxZVplQlFIK3NTZTBWeUgKNEZ4YnExOHVwMmJ0ZStwbXJKZXQ3YWE2UENYY0ZyTm44R1RlaTRXVVl0ckVsVm5Wc2hVQkt1WGdUUU1VSm92WAo5MWN3ejhxbWgvWUhsVEUrSjNjQ0F3RUFBYU1qTUNFd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFBdmNQSTVtUExBYTIrTk9kVjBRaHdrNTNzMnUKemJURVJkdTZHODVLQ3JJbkZ2aW1ySzJwY3VYNHR1c1hCTnJLZWlGZjlZWGxBZXVJcWlMcmxYdU5GN0VVSFJaVwpRNWdBaFl3bWM4N05DZllnS1IyUGJ1QlV2UVVIRnFaaDFzQmx3ZXBJQzVjZFJPeFg0d0RnMGxGRmpKNHRtekdpCk5VNVdTeURqaEZKa3BNTE5TWlhBL0NqZ1pnMVp0dnVObm94Nk81NVZqQU9LaCtFY0VrdTF3SWRnV2ZJRUJNV0YKM2dPTGlVVDFjNmdIQzk2V1FtMGtXVG9SL0UzQldPOStSd3ZqczM4K3dhNlEwMFFKRnhualZxNFl5NFQrSWI1QQorZFR3cnB0UmN5TjljU09LbEN6S00xbG1QWDhxbzNNcFEvUVgxT3A4V2ErdVFpMDdSb2Y5V01WVXpVND0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+        server: https://AACC683944DA8E94C3DDB9A3665A6FC5.sk1.us-west-2.eks.amazonaws.com
+        name: spinnaker-arn:aws:eks:us-west-2:025179128306:cluster/eks-cloud-armory-dev-us-west-2
+        contexts:
+        - context:
+          cluster: spinnaker-arn:aws:eks:us-west-2:025179128306:cluster/eks-cloud-armory-dev-us-west-2
+          user: spinnaker-arn:aws:eks:us-west-2:025179128306:cluster/eks-cloud-armory-dev-us-west-2
+          name: spinnaker-arn:aws:eks:us-west-2:025179128306:cluster/eks-cloud-armory-dev-us-west-2
+        current-context: spinnaker-arn:aws:eks:us-west-2:025179128306:cluster/eks-cloud-armory-dev-us-west-2
+        kind: Config
+        preferences: {}
+        users:
+        - name: spinnaker-arn:aws:eks:us-west-2:025179128306:cluster/eks-cloud-armory-dev-us-west-2
+          user:
+          token: eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJlZGdhci1kZXYiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoic3Bpbm5ha2VyLXNlcnZpY2UtYWNjb3VudC10b2tlbi1ieGZ3NCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJzcGlubmFrZXItc2VydmljZS1hY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiNGM5MzZjYTYtODAwZS0xMWVhLTllMTEtMGFkZjI5MjIxZTVjIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmVkZ2FyLWRldjpzcGlubmFrZXItc2VydmljZS1hY2NvdW50In0.k8qKxx8_ZwymwALIhRqqUC3Pd56reZ3ZUZYFVu6KE7x0vxpYdZktXx6BNFdg2qbTgxgCaVJ5CLSwQgUe1lKxWhOOglWV04hYJnC9aqXbeMcZJ3aMhiFupSX1ekHvHghxOVUfIPNUa7X96kdmmkf2HRxnAxujsxA2a6eGS8r9Swi5r-dvMNrWnMsBVANSeSZIM3kdBbuu6OsKT2fad_10TvyauPRUHtWqy8Vo2v_wAwpJRtNxlHZePw46VWJ9lANTFyKHOdDgyn7z-FiLyLir2wY2JlUuu3L71KhPNdIwE-uRo4XdldpI1bSlFRjnqOCWXr7R-e-YWOA08xecau3cRw
+  #      profiles__rosco__packer__example-packer-config.json: |
+  #        {
+  #          "packerSetting": "someValue"
+  #        }
+  #      profiles__rosco__packer__my_custom_script.sh: |
+  #        #!/bin/bash -e
+  #        echo "hello world!"
+
+
+  # spec.expose - This section defines how Spinnaker should be publicly exposed
+  expose:
+    type: service  # Kubernetes LoadBalancer type (service/ingress), note: only "service" is supported for now
+    service:
+      type: LoadBalancer
+
+      # annotations to be set on Kubernetes LoadBalancer type
+      # they will only apply to spin-gate, spin-gate-x509, or spin-deck
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+        # uncomment the line below to provide an AWS SSL certificate to terminate SSL at the LoadBalancer
+        #service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:9999999:certificate/abc-123-abc
+
+      # provide an override to the exposing KubernetesService
+      overrides: {}
+      # Provided below is the example config for the Gate-X509 configuration
+#        deck:
+#          annotations:
+#            service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:9999999:certificate/abc-123-abc
+#            service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+#        gate:
+#          annotations:
+#            service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-west-2:9999999:certificate/abc-123-abc
+#            service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https  # X509 requires https from LoadBalancer -> Gate
+#       gate-x509:
+#         annotations:
+#           service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+#           service.beta.kubernetes.io/aws-load-balancer-ssl-cert: null
+#         publicPort: 443
