@@ -25,14 +25,13 @@ spec:
             configureImagePullSecrets: true
             cacheThreads: 1
             namespaces:
-            - edgar-dev
             - armory-spinnaker
             omitNamespaces: []
             kinds: []
             omitKinds: []
             customResources: []
             cachingPolicies: []
-            kubeconfigFile: kubeconfig-dev
+            serviceAccount: true
             oAuthScopes: []
             onlySpinnakerManaged: false
           primaryAccount: kubernetes
@@ -69,7 +68,9 @@ spec:
     # spec.spinnakerConfig.service-settings - This section contains the YAML of the service's service-setting
     # see https://www.spinnaker.io/reference/halyard/custom/#tweakable-service-settings for available settings
     service-settings:
-      clouddriver: {}
+      clouddriver:
+        kubernetes:
+          serviceAccountName: spin-sa
       deck: {}
       echo: {}
       fiat: {}
