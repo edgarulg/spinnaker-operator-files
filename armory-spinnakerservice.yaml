@@ -35,6 +35,13 @@ spec:
             oAuthScopes: []
             onlySpinnakerManaged: false
           primaryAccount: kubernetes
+      artifacts:
+        github:
+          enabled: true
+          accounts:
+          - name: test-account
+            username: edgarulg
+            token: db7c0d52e782e5f17c2f06e3270012c29bcea367
       spinnaker:
         extensibility:
           plugins:
