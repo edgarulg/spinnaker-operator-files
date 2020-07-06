@@ -12,7 +12,7 @@ spec:
         persistentStoreType: s3
         s3:
           bucket: armory-edgargarcia
-          rootFolder: front50
+          rootFolder: front50-armory
       providers:
         kubernetes:
           enabled: true
